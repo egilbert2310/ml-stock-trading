@@ -8,12 +8,12 @@ class DataPrep:
         pass
 
     def load_raw_data(self, laptop=True):
-        lap_top_data_fp = "C:/Users/student/Documents/ml-stock-trading/data/individual_stocks_5yr/individual_stocks_5yr/AAPL_data.csv"
-        desk_top_data_fp = "C:/Users/Eric/Documents/ml-stock-trading/data/individual_stocks_5yr/individual_stocks_5yr/AAPL_data.csv"
+        laptop_data_fp = "C:/Users/student/Documents/ml-stock-trading/data/individual_stocks_5yr/individual_stocks_5yr/AAPL_data.csv"
+        desktop_data_fp = "C:/Users/Eric/Documents/ml-stock-trading/data/individual_stocks_5yr/individual_stocks_5yr/AAPL_data.csv"
         if laptop:
-            df = pd.read_csv(lap_top_data_fp)
+            df = pd.read_csv(laptop_data_fp)
         else:
-            df = pd.read_csv(desk_top_data_fp)
+            df = pd.read_csv(desktop_data_fp)
         return df
 
     def prep_raw_data(self, df):
@@ -30,8 +30,21 @@ class DataPrep:
         df["target"] = df["local_min"].notnull() * 1
         return df
 
-    def prep_training_data(self, coef_df, raw_df):
-        training_data = pd.DataFrame(data=coef_df)
-        training_data["normalized_value"] = raw_df["normalized_value"]
-        training_data["volume"] = raw_df["volume"]
+    def prep_training_data(self, coef_df, stock_df):
+        training_data = coef_df.copy()
+        training_data["normalized_value"] = stock_df["normalized_value"]
+        training_data["volume"] = stock_df["volume"]
+        training_data["RSI"] = stock_df['RSI']
+        training_data["target"] =  stock_df['target']
+        training_data = training_data.dropna()
         return training_data
+
+    def calc_rsi(self, df):
+        df['pct_change'] = df.close.pct_change() * 100
+        df['gain'] = [x if x > 0 else 0 for x in df['pct_change']]
+        df['loss'] = [abs(x) if x < 0 else 0 for x in df['pct_change']]
+        df['14_avg_gain'] = df.gain.rolling(14).mean()
+        df['14_avg_loss'] = df.loss.rolling(14).mean()
+        df['RS'] = df['14_avg_gain'] / df['14_avg_loss']
+        df['RSI'] = 100 - (100 / (1 + df['RS']))
+        return df
