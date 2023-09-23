@@ -8,8 +8,8 @@ class DataPrep:
         pass
 
     def load_raw_data(self, laptop=True):
-        laptop_data_fp = "C:/Users/student/Documents/ml-stock-trading/data/individual_stocks_5yr/individual_stocks_5yr/AAPL_data.csv"
-        desktop_data_fp = "C:/Users/Eric/Documents/ml-stock-trading/data/individual_stocks_5yr/individual_stocks_5yr/AAPL_data.csv"
+        laptop_data_fp = "C:/Users/student/Documents/ml-stock-trading/data/individual_stocks_5yr/individual_stocks_5yr/MSFT_data.csv"
+        desktop_data_fp = "C:/Users/Eric/Documents/ml-stock-trading/data/individual_stocks_5yr/individual_stocks_5yr/MSFT_data.csv"
         if laptop:
             df = pd.read_csv(laptop_data_fp)
         else:
@@ -37,6 +37,7 @@ class DataPrep:
         training_data["RSI"] = stock_df['RSI']
         training_data["target"] =  stock_df['target']
         training_data = training_data.dropna()
+        training_data = training_data.reset_index(drop=True)
         return training_data
 
     def calc_rsi(self, df):
